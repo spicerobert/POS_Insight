@@ -1,0 +1,18 @@
+=== SOKUHO 匯入驗證（2020-01-01 ~ 2025-12-31）===
+
+PDF 目錄（含 overrides 可解析之檔案）應匯入日數: 2192
+資料庫 fact_sales 有 DAILY 資料之日期數: 2192
+應匯入但無 DAILY 的日期數: 0
+資料庫多出但不在應匯入清單的日期數: 0
+
+日曆總天數: 2192（此數值僅供參考；未強制每日皆有 SOKUHO）
+DAILY 與 MTD 筆數不一致的日期數: 5
+前 15 筆 (date, daily_count, mtd_count):
+  2022-05-31  DAILY=25  MTD=27
+  2022-08-13  DAILY=26  MTD=28
+  2023-04-20  DAILY=27  MTD=28
+  2024-03-05  DAILY=26  MTD=27
+  2025-10-24  DAILY=29  MTD=30
+
+etl_log FAILED 筆數: 0
+etl_log SKIPPED 筆數: 1179

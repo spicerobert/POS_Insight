@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip show:請用uv來管理套件和.venv環境)",
+      "Bash(pip install:*)",
+      "Bash(python main.py --dry-run --file \"SOKUHO 2020.10.01.pdf\" --verbose)",
+      "Bash(python main.py --dry-run --file \"SOKUHO 2020.10.01.pdf\"我只需要每日SALES\\(Including transfer\\) RESULT, 合併轉單後的總銷售)",
+      "Bash(python -c \":*)",
+      "Bash(docker compose:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker cp:*)",
+      "Bash(pip show:*)",
+      "Bash(python -c \"import pyodbc; print\\(pyodbc.drivers\\(\\)\\)\")",
+      "Bash(cp .env.example .env)",
+      "Bash(python main.py --dry-run)",
+      "Bash(python main.py)"
+    ]
+  }
+}

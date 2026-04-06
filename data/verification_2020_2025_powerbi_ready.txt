@@ -1,0 +1,23 @@
+SOKUHO 匯入驗證摘要（2020-01-01～2025-12-31）
+========================================
+驗證時間：以本機 OneDrive 目錄 + etl/sokuho_import_overrides.yaml 計算「應匯入日期」，
+並與 PosInsight.fact_sales（record_type = DAILY）比對。
+
+【結論】
+- 應匯入日數（有對應 PDF 且 overrides 可解析）：2192
+- 資料庫中已有 DAILY 資料的日期數：2192
+- 缺漏日數：0  → 每一天的 SOKUHO 均已匯入，可進行 Power BI 資料前處理。
+
+【品質備註】
+- 有 5 個日期的「DAILY 筆數」與「MTD 筆數」不一致（門市層級配對不完整），
+  若 DAX 需嚴格依店別同時用 DAILY+MTD，建議再檢視該日 PDF 或 ETL：
+  2022-05-31、2022-08-13、2023-04-20、2024-03-05、2025-10-24
+  詳見：data/verification_daily_mtd_mismatch_2020_2025.csv
+
+【稽核 log】
+- etl_log 中 FAILED：0
+- 已刪除 2025-01-22 舊檔 SOKUHO 2025.1.22.pdf 的 SUCCESS 紀錄（已被 -1 修正版取代），
+  避免與正式來源重複計數。
+
+【SKIPPED 說明】
+- etl_log 內有多次 SKIPPED 屬重跑時「已載入略過」之正常累積，不代表缺日。

@@ -1,0 +1,52 @@
+# SOKUHO PDF：非標準檔名／同日多檔時，匯入要採用的檔案（不修改 OneDrive 原始檔名）
+# 主程式會讀取此檔，並在匯入時寫入資料表 etl_sokuho_import_resolution
+#
+# 欄位說明：
+#   use_basename     — 要匯入的檔名（與磁碟上一致）
+#   instead_of_basename — 僅供紀錄：若存在則視為「被取代的預設檔名」
+#   path_contains    — 可選；路徑中須含此字串（同名檔出現在兩個月份資料夾時用）
+#   ignore_basenames — 可選；該日略過不匯入的檔名（例如活動別冊）
+#   note             — 可選；寫入 DB 的說明
+
+version: 1
+
+overrides:
+  "2022-07-24":
+    note: "略過活動檔，僅匯入標準 SOKUHO"
+    ignore_basenames:
+      - "2022 Autum Sales 60day 2022.07.24.pdf"
+
+  "2024-04-30":
+    use_basename: "SOKUHO 2024.04.30.pdf-HS修改轉單.pdf"
+    instead_of_basename: "SOKUHO 2024.04.30.pdf"
+    note: "以 HS 修改轉單版為正式匯入來源"
+
+  "2024-06-30":
+    use_basename: "SOKUHO 2024.06.30(Revised)).pdf"
+    instead_of_basename: "SOKUHO 2024.06.30.pdf"
+    note: "以 Revised 版為正式匯入來源"
+
+  "2024-10-08":
+    use_basename: "SOKUHO 2024.10.08.pdf"
+    ignore_basenames:
+      - "SOKUHO 2024.10.08-1.pdf"
+    note: "以主檔為準，略過 -1 變體"
+
+  "2025-06-04":
+    use_basename: "SOKUHO 2025.6.04.pdf"
+    path_contains: "202506"
+    note: "跨月資料夾重複時保留 202506 路徑下該檔"
+
+  "2025-08-31":
+    use_basename: "SOKUHO 2025.8.31修改.pdf"
+    instead_of_basename: "SOKUHO 2025.8.31.pdf"
+    note: "以修改版為正式匯入來源"
+
+  "2025-01-22":
+    use_basename: "SOKUHO 2025.1.22-1.pdf"
+    instead_of_basename: "SOKUHO 2025.1.22.pdf"
+    ignore_basenames:
+      - "SOKUHO 2025.1.22.pdf"
+    note: >-
+      特例：原檔由 EXCEL 轉 PDF 時隱藏了 ALL 19 STORES 的日銷售列，擷取時與 New Store Sales 併成異常字串、造成誤判；
+      已改採重新匯出之 SOKUHO 2025.1.22-1.pdf（含完整 New Store Sales 與 ALL 19 STORES／正規化為 ALL 18）。
