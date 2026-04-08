@@ -69,6 +69,7 @@ USING (
     (N'4010', N'Costco',                 N'Costco', N'HQ',         35),
     (N'4008', N'Anhe store',            N'Anhe',  N'HQ',          36),
     (N'4011', N'Business Development',  N'BD',    N'HQ',          37),
+    (N'4003', N'China Airlines',         N'China Air', N'HQ',      38),
     (N'9013', N'OFFICE & WEB TOTAL',      N'OFFWEB_SUB', N'subtotal', 33),
     (N'9999', N'GRAND TOTAL',             N'GRAND', N'grand_total', 34)
 ) AS s (store_code, store_name, store_short_name, store_type, display_order)

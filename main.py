@@ -2,9 +2,12 @@
 """
 POS Insight ETL entry point.
 
+SOKUHO PDF 預設根目錄為 OneDrive 下的 SOKUHO 資料夾（依年度分子資料夾，如 SOKUHO\\2026）。
+可覆寫：環境變數 PDF_DIR（見 .env.example）或 --pdf-dir。
+
 Usage:
-  python main.py --pdf-dir ./data
-  python main.py --pdf-dir "E:/.../SOKUHO"   # recursive: all PDFs under tree
+  python main.py
+  python main.py --pdf-dir "D:/other/SOKUHO"
   python main.py --file "SOKUHO 2020.10.01.pdf"
   python main.py --force
   python main.py --dry-run
@@ -37,10 +40,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# 實務上 SOKUHO 僅集中於此樹狀目錄；請以 PDF_DIR 或 --pdf-dir 覆寫其他環境。
+DEFAULT_PDF_DIR = r"E:\OneDrive - Aunt Stella Company\SOKUHO"
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="SOKUHO PDF → SQL Server ETL")
-    p.add_argument("--pdf-dir", default="./data", help="Root directory (PDFs searched recursively)")
+    p.add_argument(
+        "--pdf-dir",
+        default=os.environ.get("PDF_DIR", DEFAULT_PDF_DIR),
+        help=(
+            "SOKUHO 根目錄（遞迴搜尋 *.pdf）。預設：環境變數 PDF_DIR，否則為 OneDrive 下 SOKUHO 路徑。"
+        ),
+    )
     p.add_argument("--file", help="Process a single PDF (basename only; must exist under pdf-dir)")
     p.add_argument("--force", action="store_true", help="Re-process already-loaded files")
     p.add_argument("--dry-run", action="store_true", help="Parse PDFs but do not write to DB")
