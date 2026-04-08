@@ -1,3 +1,5 @@
+# POS Insight / SOKUHO ETL：本機秘密與虛擬環境請勿提交（uv 常用 .venv）
+#
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -134,10 +136,14 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# Environments（連線字串等；範本見 .env.example）
 .env
+.env.local
+.env.*.local
 .envrc
-.venv
+!.env.example
+.venv/
+.env/
 env/
 venv/
 ENV/
@@ -193,6 +199,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# OS / editor debris
+Thumbs.db
+Desktop.ini
+.DS_Store
 
 # Cursor
 #  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
