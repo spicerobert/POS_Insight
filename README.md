@@ -28,6 +28,16 @@ uv run python main.py --pdf-dir "E:/OneDrive - Aunt Stella Company/SOKUHO/2026" 
 uv run python main.py --from-date 2026-03-01 --to-date 2026-03-31 --dry-run
 ```
 
+## 門市主檔 seed（dim_store）
+
+使用與 ETL 相同的 `.env`（`DB_SERVER`、`DB_NAME`、`DB_USER`、`DB_PASSWORD`）連線 SQL Server，執行 `db/seed_stores.sql` 的 MERGE（可重複執行、不會重複插入同名門市）。
+
+```powershell
+uv run python db/apply_seed_stores.py
+```
+
+請在**專案根目錄**執行；若尚未安裝依賴，先執行 `uv sync`。
+
 ### 補充
 
 - `--unknown-store-policy` 預設為 `skip_row`（未知門市只略過該列，其餘照常匯入）。
