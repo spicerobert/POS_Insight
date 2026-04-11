@@ -25,6 +25,8 @@ EXPECTED_STORE_NAMES = {
     "TNHR", "Costco", "Anhe store", "Taipei 101", "MOMO", "Rainbow Market", "Temporary Stall",
     "A8 Mitsukoshi", "Gloria Outlets",
     "Business Development",
+    "China Airlines",
+    "Taoyuan Area", "Hsinchu Area", "Taichung Area", "Tainan Area", "Kaohsiung Area",
     "OFFICE & WEB TOTAL", "GRAND TOTAL",
 }
 

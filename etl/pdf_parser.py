@@ -281,6 +281,33 @@ def _build_record(
     }
 
 
+# ── Store name normalisation ────────────────────────────────────────────────
+
+_UNICODE_HYPHENS = ("\u2010", "\u2011", "\u2012", "\u2013", "\u2014", "\u2212", "\uff0d")
+
+
+def _normalize_store_name(name: str) -> str:
+    """Align PDF label variations with seeded dim_store store_name."""
+    n = name.strip()
+    # Merged cells sometimes yield "New Store Sales\nALL 19 STORES" in one NAME cell;
+    # use the first non-empty line as the row's store label.
+    if "\n" in n or "\r" in n:
+        for line in n.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+            s = line.strip()
+            if s:
+                n = s
+                break
+    # PDF 常用 Unicode 連字號；dim_store / seed 使用 ASCII "-"
+    for u in _UNICODE_HYPHENS:
+        n = n.replace(u, "-")
+    if n in ("ALL 19 STORES", "ALL 17 STORES"):
+        return "ALL 18 STORES"
+    # PDF 有時用 BD，dim_store 主檔為 Business Development（同代號 4011）
+    if n == "BD":
+        return "Business Development"
+    return n
+
+
 # ── Public API ──────────────────────────────────────────────────────────────
 
 def parse_pdf(pdf_path: str | Path) -> list[dict]:
@@ -326,27 +353,6 @@ def parse_pdf(pdf_path: str | Path) -> list[dict]:
                 )
 
         # Build records from both pages
-        def _normalize_store_name(name: str) -> str:
-            # Align PDF label variations with seeded dim_store store_name.
-            n = name.strip()
-            # Merged cells sometimes yield "New Store Sales\nALL 19 STORES" in one NAME cell;
-            # use the first non-empty line as the row's store label.
-            if "\n" in n or "\r" in n:
-                for line in n.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
-                    s = line.strip()
-                    if s:
-                        n = s
-                        break
-            # PDF 常用 Unicode 連字號；dim_store / seed 使用 ASCII "-"
-            for _u in ("\u2010", "\u2011", "\u2012", "\u2013", "\u2014", "\u2212", "\uff0d"):
-                n = n.replace(_u, "-")
-            if n in ("ALL 19 STORES", "ALL 17 STORES"):
-                return "ALL 18 STORES"
-            # PDF 有時用 BD，dim_store 主檔為 Business Development（同代號 4011）
-            if n == "BD":
-                return "Business Development"
-            return n
-
         for rows, store_list in [(rows_p1, p1_list), (rows_p2, p2_list)]:
             store_pairs = len(rows) // 2
             for store_idx in range(store_pairs):
@@ -368,7 +374,7 @@ def parse_pdf(pdf_path: str | Path) -> list[dict]:
 
                 # Prefer the NAME cell in PDF table (first column) when it is textual.
                 store_name_daily = fallback_name
-                if daily_row and len(daily_row) > 0:
+                if daily_row:
                     first = daily_row[0]
                     if to_float(first) is None and first not in (None, ""):
                         store_name_daily = _normalize_store_name(str(first))
@@ -385,7 +391,7 @@ def parse_pdf(pdf_path: str | Path) -> list[dict]:
                 )
 
                 store_name_mtd = store_name_daily
-                if mtd_row and len(mtd_row) > 0:
+                if mtd_row:
                     first = mtd_row[0]
                     if to_float(first) is None and first not in (None, ""):
                         store_name_mtd = _normalize_store_name(str(first))

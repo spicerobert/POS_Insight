@@ -13,7 +13,9 @@
       "Bash(python -c \"import pyodbc; print\\(pyodbc.drivers\\(\\)\\)\")",
       "Bash(cp .env.example .env)",
       "Bash(python main.py --dry-run)",
-      "Bash(python main.py)"
+      "Bash(python main.py)",
+      "Bash(python -c \"from etl.pdf_parser import _normalize_store_name; print\\(_normalize_store_name\\('ALL 19 STORES'\\)\\); print\\(_normalize_store_name\\('BD'\\)\\)\")",
+      "Bash(python -c \"from main import _parse_date; from datetime import date; assert _parse_date\\('2025-01-01'\\) == date\\(2025,1,1\\); assert _parse_date\\(None\\) is None; print\\('OK'\\)\")"
     ]
   }
 }

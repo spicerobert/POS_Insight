@@ -50,3 +50,8 @@ overrides:
     note: >-
       特例：原檔由 EXCEL 轉 PDF 時隱藏了 ALL 19 STORES 的日銷售列，擷取時與 New Store Sales 併成異常字串、造成誤判；
       已改採重新匯出之 SOKUHO 2025.1.22-1.pdf（含完整 New Store Sales 與 ALL 19 STORES／正規化為 ALL 18）。
+
+  "2026-04-08":
+    use_basename: "SOKUHO 2026.04.08(Revised).pdf"
+    instead_of_basename: "SOKUHO 2026.04.08.pdf"
+    note: "以 Revised 版為正式匯入來源"

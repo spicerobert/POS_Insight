@@ -35,9 +35,9 @@ def get_connection(server: str, database: str, user: str, password: str) -> pyod
 
 def load_store_map(conn: pyodbc.Connection) -> dict[str, int]:
     """Return {store_name: store_id} mapping from dim_store."""
-    cur = conn.cursor()
-    cur.execute("SELECT store_name, store_id FROM dim_store")
-    result = {row.store_name: row.store_id for row in cur.fetchall()}
+    with conn.cursor() as cur:
+        cur.execute("SELECT store_name, store_id FROM dim_store")
+        result = {row.store_name: row.store_id for row in cur.fetchall()}
     if not result:
         raise RuntimeError(
             "dim_store is empty — run db/seed_stores.sql first."
@@ -49,12 +49,12 @@ def load_store_map(conn: pyodbc.Connection) -> dict[str, int]:
 
 def is_already_loaded(conn: pyodbc.Connection, source_file: str) -> bool:
     """True if this file was previously loaded successfully."""
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT 1 FROM etl_log WHERE source_file = ? AND status = 'SUCCESS'",
-        source_file,
-    )
-    return cur.fetchone() is not None
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT 1 FROM etl_log WHERE source_file = ? AND status = 'SUCCESS'",
+            source_file,
+        )
+        return cur.fetchone() is not None
 
 
 def log_result(
@@ -65,18 +65,18 @@ def log_result(
     status: str,
     error_message: str | None = None,
 ) -> None:
-    cur = conn.cursor()
-    cur.execute(
-        """
-        INSERT INTO etl_log (source_file, report_date, records_loaded, status, error_message)
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        source_file,
-        report_date,
-        records_loaded,
-        status,
-        error_message,
-    )
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO etl_log (source_file, report_date, records_loaded, status, error_message)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            source_file,
+            report_date,
+            records_loaded,
+            status,
+            error_message,
+        )
     conn.commit()
 
 
@@ -89,35 +89,35 @@ def upsert_sokuho_resolution(
     ignored_files_note: str | None,
 ) -> None:
     """Record which PDF was chosen for this report date (non-standard names, overrides)."""
-    cur = conn.cursor()
-    cur.execute(
-        """
-        MERGE etl_sokuho_import_resolution AS tgt
-        USING (
-            SELECT CAST(? AS DATE) AS report_date,
-                   CAST(? AS NVARCHAR(500)) AS actual_source_file,
-                   CAST(? AS NVARCHAR(500)) AS default_source_file,
-                   CAST(? AS NVARCHAR(1000)) AS resolution_note,
-                   CAST(? AS NVARCHAR(1000)) AS ignored_files_note
-        ) AS src
-        ON tgt.report_date = src.report_date
-        WHEN MATCHED THEN
-            UPDATE SET
-                actual_source_file = src.actual_source_file,
-                default_source_file = src.default_source_file,
-                resolution_note = src.resolution_note,
-                ignored_files_note = src.ignored_files_note,
-                last_loaded_at = GETDATE()
-        WHEN NOT MATCHED THEN
-            INSERT (report_date, actual_source_file, default_source_file, resolution_note, ignored_files_note)
-            VALUES (src.report_date, src.actual_source_file, src.default_source_file, src.resolution_note, src.ignored_files_note);
-        """,
-        report_date,
-        actual_source_file,
-        default_source_file,
-        resolution_note,
-        ignored_files_note,
-    )
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            MERGE etl_sokuho_import_resolution AS tgt
+            USING (
+                SELECT CAST(? AS DATE) AS report_date,
+                       CAST(? AS NVARCHAR(500)) AS actual_source_file,
+                       CAST(? AS NVARCHAR(500)) AS default_source_file,
+                       CAST(? AS NVARCHAR(1000)) AS resolution_note,
+                       CAST(? AS NVARCHAR(1000)) AS ignored_files_note
+            ) AS src
+            ON tgt.report_date = src.report_date
+            WHEN MATCHED THEN
+                UPDATE SET
+                    actual_source_file = src.actual_source_file,
+                    default_source_file = src.default_source_file,
+                    resolution_note = src.resolution_note,
+                    ignored_files_note = src.ignored_files_note,
+                    last_loaded_at = GETDATE()
+            WHEN NOT MATCHED THEN
+                INSERT (report_date, actual_source_file, default_source_file, resolution_note, ignored_files_note)
+                VALUES (src.report_date, src.actual_source_file, src.default_source_file, src.resolution_note, src.ignored_files_note);
+            """,
+            report_date,
+            actual_source_file,
+            default_source_file,
+            resolution_note,
+            ignored_files_note,
+        )
     conn.commit()
 
 
@@ -250,14 +250,12 @@ def load_dataframe(
         if col in df.columns:
             df[col] = None
 
-    cur = conn.cursor()
     count = 0
-
-    for _, row in df.iterrows():
-        params = [_to_py(row.get(c)) for c in _ORDERED_COLS]
-        cur.execute(_MERGE_SQL, params)
-        count += 1
-
+    with conn.cursor() as cur:
+        for _, row in df.iterrows():
+            params = [_to_py(row.get(c)) for c in _ORDERED_COLS]
+            cur.execute(_MERGE_SQL, params)
+            count += 1
     conn.commit()
     return count
 

@@ -79,8 +79,7 @@ def parse_args() -> argparse.Namespace:
 def _parse_date(s: str | None) -> date | None:
     if not s:
         return None
-    y, m, d = s.strip().split("-")
-    return date(int(y), int(m), int(d))
+    return date.fromisoformat(s.strip())
 
 
 def main() -> None:
